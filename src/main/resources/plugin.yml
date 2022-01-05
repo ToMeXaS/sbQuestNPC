@@ -1,0 +1,6 @@
+name: sbQuestNPC
+version: '${project.version}'
+main: lt.tomexas.sbquestnpc.Skyblock
+api-version: 1.17
+depend:
+  - SuperiorSkyblock2
