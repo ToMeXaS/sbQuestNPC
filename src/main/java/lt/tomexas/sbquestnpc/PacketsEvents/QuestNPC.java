@@ -22,56 +22,81 @@ import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class QuestNPC {
 
     private final Skyblock plugin;
+    private final String name = "§eKeliautojas Jonas Havaras";
 
     public QuestNPC (Skyblock plugin) {
         this.plugin = plugin;
     }
 
-    public void createNPC(Island island) {
+    public void createNPC(Island island, Location loc) {
         WorldServer world = ((CraftWorld) island.getCenter(World.Environment.NORMAL).getWorld()).getHandle();
         EntityVillager npc = new EntityVillager(EntityTypes.aV, world, VillagerType.c);
-
-        Location loc;
-        if (this.plugin.npcLocations.containsKey(island)) {
-            loc = this.plugin.npcLocations.get(island);
-        } else {
-            loc = island.getCenter(World.Environment.NORMAL).add(1, 0, -3);
-        }
 
         npc.setLocation(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         npc.setCustomNameVisible(true);
 
-        if (!island.getOwner().hasPermission("questNPC.completed"))
-            npc.setCustomName(new ChatComponentText("\uF822\uE005"));
+        if (island.getOwner().hasPermission("questnpc.completed"))
+            npc.setCustomName(new ChatComponentText(name));
         else
-            npc.setCustomName(new ChatComponentText("§eKeliautojas Jonas Havaras"));
+            npc.setCustomName(new ChatComponentText("§f§l???"));
 
         npc.setSilent(true);
         npc.setNoAI(true);
         npc.setInvulnerable(true);
         npc.setVillagerData(new VillagerData(VillagerType.c, VillagerProfession.d, 1));
 
-        for (Player player : Bukkit.getOnlinePlayers())
-            addNPCPacket(player, npc);
-
-        this.plugin.npcLocations.put(island, loc);
-        this.plugin.NPCs.put(island, npc);
+        Map<EntityVillager, Location> map = new HashMap<>();
+        map.put(npc, loc);
+        this.plugin.NPCs.put(island, map);
     }
 
-    public void addNPCPacket(Player player, EntityVillager npc) {
-        PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
-        connection.sendPacket(new PacketPlayOutSpawnEntity(npc));
-        connection.sendPacket(new PacketPlayOutEntityMetadata(npc.getId(), npc.getDataWatcher(), true));
-        connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) (npc.getBukkitYaw() * 256 / 360)));
+    public void addNPCPacket(Island island) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Map<EntityVillager, Location> map = this.plugin.NPCs.get(island);
+            for (EntityVillager npc : map.keySet()) {
+                PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
+                connection.sendPacket(new PacketPlayOutSpawnEntity(npc));
+                connection.sendPacket(new PacketPlayOutEntityMetadata(npc.getId(), npc.getDataWatcher(), true));
+                connection.sendPacket(new PacketPlayOutEntityHeadRotation(npc, (byte) (npc.getBukkitYaw() * 256 / 360)));
+            }
+        }
+    }
+
+    public void destroyNPC(Island island) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Map<EntityVillager, Location> map = this.plugin.NPCs.get(island);
+            for (EntityVillager npc : map.keySet()) {
+                PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
+                connection.sendPacket(new PacketPlayOutEntityDestroy(npc.getId()));
+            }
+        }
+        this.plugin.NPCs.remove(island);
     }
 
     public void removeNPCPacket(Island island) {
+        if (this.plugin.NPCs.get(island) == null) return;
         for (Player player : Bukkit.getOnlinePlayers()) {
-            PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
-            connection.sendPacket(new PacketPlayOutEntityDestroy(this.plugin.NPCs.get(island).getId()));
+            Map<EntityVillager, Location> map = this.plugin.NPCs.get(island);
+            for (EntityVillager npc : map.keySet()) {
+                PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
+                connection.sendPacket(new PacketPlayOutEntityDestroy(npc.getId()));
+            }
         }
+    }
+
+    public Location defaultNPCLoc(Island island) {
+        Location loc = island.getCenter(World.Environment.NORMAL);
+        loc = new Location(loc.getWorld(), loc.getX()+1, loc.getY(), loc.getZ()-3, loc.getYaw(), loc.getPitch());
+        return loc;
+    }
+
+    public String getName() {
+        return name;
     }
 }

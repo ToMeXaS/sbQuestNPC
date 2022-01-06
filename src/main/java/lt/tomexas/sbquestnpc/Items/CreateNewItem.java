@@ -1,5 +1,7 @@
 package lt.tomexas.sbquestnpc.Items;
 
+import lt.tomexas.sbquestnpc.PacketsEvents.QuestNPC;
+import lt.tomexas.sbquestnpc.Skyblock;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -10,13 +12,14 @@ import java.util.List;
 
 public class CreateNewItem extends ItemStack {
 
-    protected CreateNewItem (Material material, int count, String name, List<String> lore) {
+    protected CreateNewItem (Material material, int count, List<String> lore) {
         if (count < 1) count = 1;
 
         this.setType(material);
         this.setAmount(count);
 
         ItemMeta meta = this.getItemMeta();
+        String name = new QuestNPC(Skyblock.getPlugin(Skyblock.class)).getName();
         if (!name.isEmpty())
             meta.setDisplayName(name);
         if (!lore.isEmpty())

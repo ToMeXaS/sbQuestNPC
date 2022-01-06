@@ -26,10 +26,10 @@ public class PlayerQuitJoinListeners implements Listener {
         Island island = SuperiorSkyblockAPI.getPlayer(player).getIsland();
 
         if (island != null ) {
-            this.plugin.creator.spawnQuestNPC(island);
+            this.plugin.questNPC.addNPCPacket(island);
             SuperiorPlayer sPlayer = SuperiorSkyblockAPI.getPlayer(player);
             sPlayer.teleport(sPlayer.getIsland());
-            Bukkit.getConsoleSender().sendMessage("NPC spawned!");
+            Bukkit.getConsoleSender().sendMessage("NPC despawned!");
 
             PacketReader reader = new PacketReader();
             reader.inject(player);
@@ -41,16 +41,9 @@ public class PlayerQuitJoinListeners implements Listener {
         Player player = event.getPlayer();
         Island island = SuperiorSkyblockAPI.getPlayer(player).getIsland();
         if (island != null) {
-            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
-                for (SuperiorPlayer superiorPlayer : island.getIslandMembers(true)) {
-                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(superiorPlayer.getUniqueId());
-                    if (offlinePlayer.isOnline()) return;
-                }
+            this.plugin.questNPC.removeNPCPacket(island);
+            Bukkit.getConsoleSender().sendMessage("NPC despawned!");
 
-                this.plugin.creator.despawnQuestNPC(island);
-                Bukkit.getConsoleSender().sendMessage("NPC despawned!");
-
-            }, 1);
             PacketReader reader = new PacketReader();
             reader.uninject(player);
         }

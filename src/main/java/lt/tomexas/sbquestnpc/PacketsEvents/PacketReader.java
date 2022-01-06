@@ -1,5 +1,7 @@
 package lt.tomexas.sbquestnpc.PacketsEvents;
 
+import com.bgsoftware.superiorskyblock.api.SuperiorSkyblockAPI;
+import com.bgsoftware.superiorskyblock.api.island.Island;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import lt.tomexas.sbquestnpc.Listeners.RightClickNPC;
@@ -8,6 +10,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
 import net.minecraft.world.entity.npc.EntityVillager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
@@ -55,7 +58,9 @@ public class PacketReader {
             int id = (int) getValue(packet, "a");
 
             if (getValue(packet, "b").toString().contains("PacketPlayInUseEntity$d")) {
-                for (EntityVillager npc : Skyblock.getPlugin(Skyblock.class).NPCs.values()) {
+                Island island = SuperiorSkyblockAPI.getPlayer(player).getIsland();
+                Map<EntityVillager, Location> map = Skyblock.getPlugin(Skyblock.class).NPCs.get(island);
+                for (EntityVillager npc : map.keySet()) {
                     if (id == npc.getId()) {
                         Bukkit.getScheduler().scheduleSyncDelayedTask(Skyblock.getPlugin(Skyblock.class), () -> {
                                 Bukkit.getPluginManager().callEvent(new RightClickNPC(player, npc));

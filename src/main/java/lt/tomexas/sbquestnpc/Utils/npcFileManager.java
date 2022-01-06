@@ -1,6 +1,9 @@
 package lt.tomexas.sbquestnpc.Utils;
 
+import com.bgsoftware.superiorskyblock.api.island.Island;
 import lt.tomexas.sbquestnpc.Skyblock;
+import net.minecraft.world.entity.npc.EntityVillager;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -8,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class npcFileManager {
@@ -61,5 +66,29 @@ public class npcFileManager {
         if (!this.configFile.exists()) {
             this.plugin.saveResource("QuestNPCs.yml", false);
         }
+    }
+
+    public void saveNPCdata(Island island) {
+        if (this.plugin.itemCreated.get(island) != null) {
+            getConfig().set("npc." + island.getOwner().getName() + ".itemCreated", this.plugin.itemCreated.get(island));
+            saveConfig();
+        }
+
+        if (this.plugin.NPCs.get(island) == null) return;
+        Map<EntityVillager, Location> map = this.plugin.NPCs.get(island);
+        for (Location location : map.values())
+            getConfig().set("npc." + island.getOwner().getName() + ".location", location);
+
+        saveConfig();
+    }
+
+    public void restoreNPCdata(Island island) {
+        if (getConfig().getLocation("npc." + island.getOwner().getName() + ".location") == null) return;
+        boolean itemCreated = getConfig().getBoolean("npc." + island.getOwner().getName() + ".itemCreated");
+        if (itemCreated) return;
+
+        Location loc = getConfig().getLocation("npc." + island.getOwner().getName() + ".location");
+        this.plugin.questNPC.createNPC(island, loc);
+        this.plugin.questNPC.addNPCPacket(island);
     }
 }
