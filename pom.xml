@@ -61,6 +61,10 @@
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>word-wrap</id>
+            <url>https://github.com/davidmoten/word-wrap</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -96,6 +100,12 @@
             <version>6.31.0</version>
             <scope>system</scope>
             <systemPath>C:/Users/Tomas/Desktop/GodPlay.LT/dependencies/QuestCreator.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.github.davidmoten</groupId>
+            <artifactId>word-wrap</artifactId>
+            <version>0.1.9</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

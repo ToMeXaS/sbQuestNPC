@@ -1,12 +1,9 @@
 package lt.tomexas.sbquestnpc.Inventories;
 
-import com.guillaumevdn.questcreator.QuestCreator;
-import com.guillaumevdn.questcreator.data.quest.BoardQuests;
-import com.guillaumevdn.questcreator.data.user.UserQC;
+import lt.tomexas.sbquestnpc.Skyblock;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -15,9 +12,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 public class NPCInventory {
+
+    private final Skyblock plugin;
+
+    public NPCInventory (Skyblock plugin) {
+        this.plugin = plugin;
+    }
 
     String title =
             "\uF80C\uF809\uF804\uE015\uF829\uF826\uE019\uF823\uE020\uF822\uE021\uF829\uF828\uE018" + // Control buttons
@@ -28,12 +30,13 @@ public class NPCInventory {
         String[] fileList = new File("plugins/QuestCreator/quest_models").list();
         if (fileList == null) return;
         int filesCount = fileList.length;
-
-        File file = new File("plugins/QuestCreator/quest_models/" + i + ".yml");
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        String desc = convertToUni(config.getString("display_name"));
-
-        Inventory inv = Bukkit.createInventory(player, 54, "§f\uF808\uE013" + controlButtons(title, i, filesCount) + desc  + "\uF82F[" + i + "]");
+        String name = this.plugin.QCconvertedNames.get(i-1);
+        String desc = this.plugin.QCconvertedDesc.get(i-1);
+        String spacer = "";
+        if (name.contains("\uE065")) spacer = "\uF824";
+        Inventory inv = Bukkit.createInventory(player, 54, "§f\uF808\uE013" + controlButtons(title, i, filesCount) +
+                name + spacer + alignment(name) + desc
+                + "\uF82F[" + i + "]");
 
         if (i > 1)
             inv.setItem(1, createItem(Material.PAPER, "&cPraeitas puslapis", null, 1));
@@ -81,53 +84,20 @@ public class NPCInventory {
         return title;
     }
 
-    private String convertToUni(String desc) {
-        desc = desc.toLowerCase(Locale.ROOT);
-        desc = desc
-                .replaceAll("a", "\uE023")
-                .replaceAll("ą", "\uE024")
-                .replaceAll("b", "\uE025")
-                .replaceAll("c", "\uE026")
-                .replaceAll("č", "\uE027")
-                .replaceAll("d", "\uE028")
-                .replaceAll("e", "\uE029")
-                .replaceAll("ę", "\uE030")
-                .replaceAll("ė", "\uE031")
-                .replaceAll("f", "\uE032")
-                .replaceAll("g", "\uE033")
-                .replaceAll("h", "\uE034")
-                .replaceAll("i", "\uE035")
-                .replaceAll("į", "\uE036")
-                .replaceAll("y", "\uE037")
-                .replaceAll("j", "\uE038")
-                .replaceAll("k", "\uE039")
-                .replaceAll("l", "\uE040")
-                .replaceAll("m", "\uE041")
-                .replaceAll("n", "\uE042")
-                .replaceAll("o", "\uE043")
-                .replaceAll("p", "\uE044")
-                .replaceAll("r", "\uE045")
-                .replaceAll("s", "\uE046")
-                .replaceAll("š", "\uE047")
-                .replaceAll("t", "\uE048")
-                .replaceAll("u", "\uE049")
-                .replaceAll("ų", "\uE050")
-                .replaceAll("ū", "\uE051")
-                .replaceAll("v", "\uE052")
-                .replaceAll("z", "\uE053")
-                .replaceAll("ž", "\uE054")
-                .replaceAll("0", "\uE055")
-                .replaceAll("1", "\uE056")
-                .replaceAll("2", "\uE057")
-                .replaceAll("3", "\uE058")
-                .replaceAll("4", "\uE059")
-                .replaceAll("5", "\uE060")
-                .replaceAll("6", "\uE061")
-                .replaceAll("7", "\uE062")
-                .replaceAll("8", "\uE063")
-                .replaceAll("9", "\uE064")
-                .replaceAll("\\.", "\uF802\uE065\uF821")
-                .replaceAll(" ", "\uF823");
-        return desc;
+    private String alignment(String name) {
+        int nameLength = name.length();
+        StringBuilder align = new StringBuilder();
+        if (nameLength > 20) {
+            for (int i = 0; i < (nameLength - 20); i++) {
+                align.append("\uF806");
+            }
+            return "\uF80B\uF80A\uF809\uF802" + align;
+        } else if (nameLength < 20) {
+            for (int i = nameLength; i > 0; i--) {
+                align.append("\uF806");
+            }
+            return "\uF823" + align;
+        }
+        return "\uF80B\uF80A\uF809\uF802";
     }
 }
