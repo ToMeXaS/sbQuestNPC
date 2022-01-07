@@ -3,6 +3,9 @@ package lt.tomexas.sbquestnpc.Listeners;
 import com.bgsoftware.superiorskyblock.Locale;
 import com.bgsoftware.superiorskyblock.api.SuperiorSkyblockAPI;
 import com.bgsoftware.superiorskyblock.api.island.Island;
+import com.guillaumevdn.questcreator.data.user.QuestHistoryElement;
+import com.guillaumevdn.questcreator.data.user.UserQC;
+import com.guillaumevdn.questcreator.lib.quest.QuestEndType;
 import lt.tomexas.sbquestnpc.Items.QuestVillagerEgg;
 import lt.tomexas.sbquestnpc.Skyblock;
 import net.minecraft.network.chat.ChatComponentText;
@@ -24,6 +27,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +58,7 @@ public class IslandPlayerListeners implements Listener {
 
         if (player.hasPermission("questnpc.completed")) {
             if (!player.isSneaking())
-                player.performCommand("quests");
+                openTaskInventory(player);
             else {
                 createNPCSpawnItem(player);
             }
@@ -88,12 +93,12 @@ public class IslandPlayerListeners implements Listener {
 
             Location loc = new Location(
                     block.getWorld(),
-                    block.getLocation().getX()+0.5,
-                    block.getLocation().getY()+1,
-                    block.getLocation().getZ()+0.5,
-                    event.getPlayer().getLocation().getYaw()+180.f,
+                    block.getLocation().getX() + 0.5,
+                    block.getLocation().getY() + 1,
+                    block.getLocation().getZ() + 0.5,
+                    event.getPlayer().getLocation().getYaw() + 180.f,
                     0
-                    );
+            );
 
             this.plugin.questNPC.createNPC(island, loc);
             this.plugin.questNPC.addNPCPacket(island);
@@ -111,6 +116,27 @@ public class IslandPlayerListeners implements Listener {
             if (this.plugin.NPCs.containsKey(island))
                 this.plugin.questNPC.addNPCPacket(island);
         }
+    }
+
+    private void openTaskInventory(Player player) {
+        UserQC.processWithQuests(player.getUniqueId(), user -> {
+            if (!user.getActiveQuests().isEmpty())
+                    user.getCachedActiveQuests().forEach(quest ->
+                            this.plugin.npcInventory.openInventory(player, Integer.parseInt(quest.getModel().toString())));
+            else {
+                String[] fileList = new File("plugins/QuestCreator/quest_models").list();
+                int filesCount = 0;
+                if (fileList != null && fileList.length > 0)
+                    filesCount = fileList.length;
+                for (int i = 1; i <= filesCount; i++) {
+                    QuestHistoryElement element = user.getQuestHistory().getLatestElement(String.valueOf(i), Collections.singleton(QuestEndType.SUCCESS));
+                    if (element != null)
+                        this.plugin.npcInventory.openInventory(player, Integer.parseInt(element.getModelId())+1);
+                    else
+                        this.plugin.npcInventory.openInventory(player, 1);
+                }
+            }
+        });
     }
 
     private void startTutorialDialogue(Player player, EntityVillager npc) {

@@ -83,5 +83,19 @@
             <scope>system</scope>
             <systemPath>C:/Users/Tomas/Desktop/GodPlay.LT/dependencies/SuperiorSkyblock2-1.8.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>com.guillaumevdn.gcore</groupId>
+            <artifactId>GCore</artifactId>
+            <version>1.8</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Tomas/Desktop/GodPlay.LT/dependencies/GCore.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.guillaumevdn.questcreator</groupId>
+            <artifactId>QuestCreator</artifactId>
+            <version>6.31.0</version>
+            <scope>system</scope>
+            <systemPath>C:/Users/Tomas/Desktop/GodPlay.LT/dependencies/QuestCreator.jar</systemPath>
+        </dependency>
     </dependencies>
 </project>

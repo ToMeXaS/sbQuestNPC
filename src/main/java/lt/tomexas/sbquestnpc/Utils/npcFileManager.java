@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -90,5 +89,7 @@ public class npcFileManager {
         Location loc = getConfig().getLocation("npc." + island.getOwner().getName() + ".location");
         this.plugin.questNPC.createNPC(island, loc);
         this.plugin.questNPC.addNPCPacket(island);
+        getConfig().set("npc." + island.getOwner().getName(), null);
+        saveConfig();
     }
 }
